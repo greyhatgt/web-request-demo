@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive HTTP Request Examples</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-left: 3px solid #f36d33;
+            page-break-inside: avoid;
+            font-family: monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 1.6em;
+            max-width: 100%;
+            overflow: auto;
+            padding: 1em 1.5em;
+            display: block;
+            word-wrap: break-word;
+        }
+        .note {
+            background-color: #ffffd9;
+            border-left: 6px solid #ffeb3b;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .output-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .output-section {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interactive HTTP Request Examples</h1>
+        
+        <div class="note">
+            <strong>Note:</strong> These examples use JSONPlaceholder (https://jsonplaceholder.typicode.com) as the endpoint. It's a free fake API for testing and prototyping.
+        </div>
+
+        <h2>1. GET Request</h2>
+        <p>Retrieve a post with ID 1:</p>
+        <button onclick="sendRequest('GET', '/posts/1')">Send GET Request</button>
+        <div class="output-container">
+            <div class="output-section">
+                <h3>Request</h3>
+                <pre><code class="language-http" id="getRequestOutput"></code></pre>
+            </div>
+            <div class="output-section">
+                <h3>Response</h3>
+                <pre><code class="language-http" id="getResponseOutput"></code></pre>
+            </div>
+        </div>
+
+        <h2>2. POST Request</h2>
+        <p>Create a new post:</p>
+        <textarea id="postBody">
+{
+  "title": "foo",
+  "body": "bar",
+  "userId": 1
+}
+        </textarea>
+        <button onclick="sendRequest('POST', '/posts', document.getElementById('postBody').value)">Send POST Request</button>
+        <div class="output-container">
+            <div class="output-section">
+                <h3>Request</h3>
+                <pre><code class="language-http" id="postRequestOutput"></code></pre>
+            </div>
+            <div class="output-section">
+                <h3>Response</h3>
+                <pre><code class="language-http" id="postResponseOutput"></code></pre>
+            </div>
+        </div>
+
+        <h2>3. PUT Request</h2>
+        <p>Update post with ID 1:</p>
+        <textarea id="putBody">
+{
+  "id": 1,
+  "title": "foo",
+  "body": "bar",
+  "userId": 1
+}
+        </textarea>
+        <button onclick="sendRequest('PUT', '/posts/1', document.getElementById('putBody').value)">Send PUT Request</button>
+        <div class="output-container">
+            <div class="output-section">
+                <h3>Request</h3>
+                <pre><code class="language-http" id="putRequestOutput"></code></pre>
+            </div>
+            <div class="output-section">
+                <h3>Response</h3>
+                <pre><code class="language-http" id="putResponseOutput"></code></pre>
+            </div>
+        </div>
+
+        <h2>4. PATCH Request</h2>
+        <p>Partially update post with ID 1:</p>
+        <textarea id="patchBody">
+{
+  "title": "Updated Title"
+}
+        </textarea>
+        <button onclick="sendRequest('PATCH', '/posts/1', document.getElementById('patchBody').value)">Send PATCH Request</button>
+        <div class="output-container">
+            <div class="output-section">
+                <h3>Request</h3>
+                <pre><code class="language-http" id="patchRequestOutput"></code></pre>
+            </div>
+            <div class="output-section">
+                <h3>Response</h3>
+                <pre><code class="language-http" id="patchResponseOutput"></code></pre>
+            </div>
+        </div>
+
+        <h2>5. DELETE Request</h2>
+        <p>Delete post with ID 1:</p>
+        <button onclick="sendRequest('DELETE', '/posts/1')">Send DELETE Request</button>
+        <div class="output-container">
+            <div class="output-section">
+                <h3>Request</h3>
+                <pre><code class="language-http" id="deleteRequestOutput"></code></pre>
+            </div>
+            <div class="output-section">
+                <h3>Response</h3>
+                <pre><code class="language-http" id="deleteResponseOutput"></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendRequest(method, endpoint, body = null) {
+            const url = 'https://jsonplaceholder.typicode.com' + endpoint;
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: body
+            };
+
+            if (method === 'GET' || method === 'DELETE') {
+                delete options.body;
+            }
+
+            let requestDetails = `${method} ${url}\n`;
+            requestDetails += 'Request Headers:\n';
+            for (let [key, value] of Object.entries(options.headers)) {
+                requestDetails += `${key}: ${value}\n`;
+            }
+            if (body) {
+                requestDetails += '\nRequest Body:\n' + body + '\n';
+            }
+
+            document.getElementById(`${method.toLowerCase()}RequestOutput`).textContent = requestDetails;
+
+            fetch(url, options)
+                .then(response => {
+                    let responseDetails = `Response Status: ${response.status} ${response.statusText}\n`;
+                    responseDetails += 'Response Headers:\n';
+                    for (let [key, value] of response.headers.entries()) {
+                        responseDetails += `${key}: ${value}\n`;
+                    }
+                    
+                    return response.text().then(data => {
+                        responseDetails += '\nResponse Body:\n' + data;
+                        return responseDetails;
+                    });
+                })
+                .then(result => {
+                    document.getElementById(`${method.toLowerCase()}ResponseOutput`).textContent = result;
+                    Prism.highlightAll();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById(`${method.toLowerCase()}ResponseOutput`).textContent = `Error: ${error.message}`;
+                    Prism.highlightAll();
+                });
+        }
+
+        Prism.highlightAll();
+    </script>
+</body>
+</html>
